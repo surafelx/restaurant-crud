@@ -1,8 +1,11 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const db = require("./db");
 const morgan = require("morgan");
 const app = express();
+app.use(cors());
+
 
 app.use(express.json());
 
@@ -10,9 +13,8 @@ app.use(express.json());
 
 //Get all restaurants
 app.get("/api/v1/restaurants", async (req, res) => {
-    try{  
+    try{
         const results = await db.query("SELECT * FROM restaurants");
-        console.log(results);
         res.json({
             "status":"success", 
             results: results.rows.length,
@@ -28,7 +30,6 @@ app.get("/api/v1/restaurants", async (req, res) => {
 //Get a single restaurant. 
 app.get("/api/v1/restaurants/:id", async (req, res) => {
     try {
-        console.log(req.params);
         const results = await db.query("SELECT * FROM restaurants WHERE id= $1", [req.params.id,])
         res.status(200).json({
             status: "success", 
@@ -46,7 +47,6 @@ app.get("/api/v1/restaurants/:id", async (req, res) => {
 app.post("/api/v1/restaurants", async (req, res) => {
     try {
         const results = await db.query("INSERT INTO (name, location, price_range) VALUES ($1, $2, $3) RETURNING *", [req.body.name, req.body.location, req.body.price_range])
-        console.log(res);
         res.status(201).json({
         status: "success", 
         data: {
@@ -64,8 +64,6 @@ app.post("/api/v1/restaurants", async (req, res) => {
 app.put("/api/v1/restaurants/:id", async (req, res) =>{
     try {
         const result = await db.query("UPDATE restaurants SET name=$1, location=$2, price_range=$3 WHERE id=$4 RETURNING *", [req.body.name, req.body.location, req.body.price_range, req.body.id])
-        console.log(req.params.id);
-        console.log(req.body);
         res.status(200).json({
             status: "success", 
             data: {
