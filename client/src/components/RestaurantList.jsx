@@ -37,7 +37,7 @@ const RestaurantList = () => {
         history.push(`/restaurants/${id}/update`);
     }
     const handleRestaurantSelect = (id) => {
-        history.push(`/restaurant/${id}`)
+        history.push(`/restaurants/${id}`)
     }
     return (
         <div>
