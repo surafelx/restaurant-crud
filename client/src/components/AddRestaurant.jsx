@@ -10,11 +10,11 @@ const AddRestaurant = () => {
         e.preventDefault()
         try{
             const response = await RestaurantFinder.post("/", {
-                "name": name,
-                "location": location,
-                "price_range": price_range
-            });
-            console.log(response);
+                name, 
+                location, 
+                price_range
+            })
+            console.log(response)
         } catch(err) {
             console.log(err)
         }
