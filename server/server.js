@@ -30,11 +30,14 @@ app.get("/api/v1/restaurants", async (req, res) => {
 //Get a single restaurant. 
 app.get("/api/v1/restaurants/:id", async (req, res) => {
     try {
-        const results = await db.query("SELECT * FROM restaurants WHERE id= $1", [req.params.id,])
+        const restaurants = await db.query("SELECT * FROM restaurants WHERE id= $1", [req.params.id,])
+        const reviews = await db.query("SELECT * FROM reviews WHERE restaurant_id= $1", [req.params.id,])
+        
         res.status(200).json({
             status: "success", 
             data: {
-                restaurant: results.rows[0]
+                restaurant: restaurants.rows[0],
+                reviews: reviews.rows,
             }
         });
     } catch(err) {
@@ -86,9 +89,27 @@ app.delete("/api/v1/restaurants/:id", async (req, res) => {
 
 })
 
+app.post("/api/v1/restaurants/:id/addReview", async (req, res) => {
+
+    try {
+        console.log("Je")
+        const newReview = await db.query("INSERT INTO reviews (restaurant_id, name, review, rating) VALUES ($1, $2, $3, $4) returning *", [req.params.id, req.body.name, req.body.review, req.body.rating])
+        console.log(req.body)
+        res.status(201).json({
+        status: "success", 
+        data: {
+            review: newReview.rows[0],
+        }
+    })
+
+    } catch(err) {
+        console.log(err)
+    }
+    
+
+})
 
 const port = process.env.PORT || 3001;
-
 app.listen(port, () => {
     console.log(`Server is up and running on Port ${port}! 👍`);
 });

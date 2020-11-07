@@ -1,10 +1,19 @@
 import React, { useState } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
+import RestaurantFinder from '../apis/RestaurantFinder'
 
 const AddReview = () => {
+    const { id } = useParams()
     const [name, setName] = useState("")
     const [review, setReview] = useState("")
     const [rating, setRating] = useState("")
 
+    const handleSubmitReview = async (e) => {
+        e.preventDefault()
+        const response = await RestaurantFinder.post(`/${id}/addReview`, {
+            name, review, rating
+        })
+    }
     return (
             <div className="mb-2">
                 <form action="">
@@ -30,7 +39,7 @@ const AddReview = () => {
                         <label htmlFor="Review">Review</label>
                         <textarea name="" id="Review" cols="30" rows="10" value={review} onChange={(e) => setReview(e.target.value)} className="form-control"></textarea>
                     </div>
-                    <button className="btn btn-primary">Submit</button>
+                    <button type="submit" onClick={handleSubmitReview} className="btn btn-primary">Submit</button>
                 </form>
             </div>
     )
