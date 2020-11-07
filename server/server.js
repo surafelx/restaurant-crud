@@ -10,42 +10,54 @@ app.use(cors());
 app.use(express.json());
 
 
-
-//Get all restaurants
+// Get all Restaurants
 app.get("/api/v1/restaurants", async (req, res) => {
-    try{
-        const results = await db.query("SELECT * FROM restaurants");
-        res.json({
-            "status":"success", 
-            results: results.rows.length,
-            data: {
-                restaurants: results.rows
-            }
-        });
-    } catch(err) {
-        console.log(err)
-    }
-}); 
-
-//Get a single restaurant. 
-app.get("/api/v1/restaurants/:id", async (req, res) => {
     try {
-        const restaurants = await db.query("SELECT * FROM restaurants WHERE id= $1", [req.params.id,])
-        const reviews = await db.query("SELECT * FROM reviews WHERE restaurant_id= $1", [req.params.id,])
-        
-        res.status(200).json({
-            status: "success", 
-            data: {
-                restaurant: restaurants.rows[0],
-                reviews: reviews.rows,
-            }
-        });
-    } catch(err) {
-        console.log(err);
+      //const results = await db.query("select * from restaurants");
+      const restaurantRatingsData = await db.query(
+        "select * from restaurants left join (select restaurant_id, COUNT(*), TRUNC(AVG(rating),1) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id;"
+      );
+  
+      res.status(200).json({
+        status: "success",
+        results: restaurantRatingsData.rows.length,
+        data: {
+          restaurants: restaurantRatingsData.rows,
+        },
+      });
+    } catch (err) {
+      console.log(err);
     }
-    
-});
-
+  });
+  
+  //Get a Restaurant
+  app.get("/api/v1/restaurants/:id", async (req, res) => {
+    console.log(req.params.id);
+  
+    try {
+      const restaurant = await db.query(
+        "select * from restaurants left join (select restaurant_id, COUNT(*), TRUNC(AVG(rating),1) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id where id = $1",
+        [req.params.id]
+      );
+      // select * from restaurants wehre id = req.params.id
+  
+      const reviews = await db.query(
+        "select * from reviews where restaurant_id = $1",
+        [req.params.id]
+      );
+      console.log(reviews);
+  
+      res.status(200).json({
+        status: "succes",
+        data: {
+          restaurant: restaurant.rows[0],
+          reviews: reviews.rows,
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  });
 // Create a restaurant 
 app.post("/api/v1/restaurants", async (req, res) => {
     try {

@@ -1,18 +1,27 @@
 import React, { useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useHistory, useLocation, useParams } from 'react-router-dom'
 import RestaurantFinder from '../apis/RestaurantFinder'
 
 const AddReview = () => {
     const { id } = useParams()
+    const history = useHistory()
+    const location = useLocation()
     const [name, setName] = useState("")
     const [review, setReview] = useState("")
     const [rating, setRating] = useState("")
 
     const handleSubmitReview = async (e) => {
         e.preventDefault()
-        const response = await RestaurantFinder.post(`/${id}/addReview`, {
-            name, review, rating
-        })
+        try{
+            const response = await RestaurantFinder.post(`/${id}/addReview`, {
+                name, review, rating
+            })
+        history.push("/")
+        history.push(location.pathname);
+        }catch(err) {
+
+        }
+       
     }
     return (
             <div className="mb-2">
